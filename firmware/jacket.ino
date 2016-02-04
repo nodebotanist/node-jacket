@@ -4,7 +4,7 @@
 
 
 // This #include statement was automatically added by the Particle IDE.
-#include "Nodebotanist_InternetButton.h"
+#include "InternetButton.h"
 
 
 // This #include statement was automatically added by the Particle IDE.
