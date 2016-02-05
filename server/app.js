@@ -11,6 +11,8 @@ dotenv.load();
 
 var jacketPhoton, beltPhoton;
 
+var beltColors;
+
 particle.on('login', function(err, body){
     if(err){
       throw err;
@@ -21,14 +23,25 @@ particle.on('login', function(err, body){
     particle.listDevices(function(err, devices){
       jacketPhoton = _.find(devices, {name: 'jacket2'});
       beltPhoton = _.find(devices, {name: 'belt'});
+
+      setInterval(function(){
+        beltPhoton.getVariable('colors', function(err, data){
+          console.log(data)
+        })
+      }, 5000)
     });
 });
 
 function updateColors(data){
-  beltPhoton.callFunction('addColor', data.color.slice(1));
-  io.emit('updateBelt', {
-    color: data.color
-  })
+  if(data.component == 'belt'){
+    beltPhoton.callFunction('addColor', data.color.slice(1));
+    io.emit('updateBelt', {
+      color: data.color
+    });
+  } else {
+    jacketPhoton.callFunction(setColor, data.component + '|' + data.color.slice(1));
+    io.emit('updateComponent', data);
+  }
 }
 
 app.use(express.static('public'));

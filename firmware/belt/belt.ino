@@ -20,16 +20,18 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 int currentFrameIndex = 0;
 String currentFrame;
 
-int colors[8] = {
-    strip.Color(255, 0, 0),
-    strip.Color(255, 127, 0),
-    strip.Color(255, 255, 0),
-    strip.Color(0, 255, 0),
-    strip.Color(0, 0, 255),
-    strip.Color(75, 0, 130),
-    strip.Color(143, 0, 255),
-    strip.Color(50, 50, 50)
-};
+int color1[3] = {255, 0, 0};
+int color2[3] = {255, 127, 0};
+int color3[3] = {255, 255, 0};
+int color4[3] = {0, 255, 0};
+int color5[3] = {0, 0, 255};
+int color6[3] = {75, 0, 130};
+int color7[3] = {143, 0, 255};
+int color8[3] = {50, 50, 5};
+
+int colors[8] = { strip.Color(color1[0], color1[1], color1[2]), strip.Color(color2[0], color2[1], color2[2]), strip.Color(color3[0], color3[1], color3[2]), strip.Color(color4[0], color4[1], color4[2]), strip.Color(color5[0], color5[1], color5[2]), strip.Color(color6[0], color6[1], color6[2]), strip.Color(color7[0], color7[1], color7[2]), strip.Color(color8[0], color8[1], color8[2]) };
+
+String colorString = (String)color1[0] + ',' + (String)color1[1] + ',' + (String)color1[1] + '|' + (String)color2[0] + ',' + (String)color2[1] + ',' + (String)color2[1] + '|' + (String)color3[0] + ',' + (String)color3[1] + ',' + (String)color3[2] + '|' + (String)color4[0] + ',' + (String)color4[1] + ',' + (String)color4[2] + '|' + (String)color5[0] + ',' + (String)color5[1] + ',' + (String)color5[2] + '|' + (String)color6[0] + ',' + (String)color6[1] + ',' + (String)color6[2] + '|' + (String)color7[0] + ',' + (String)color7[1] + ',' + (String)color7[2] + '|' + (String)color8[0] + ',' + (String)color8[1] + ',' + (String)color8[2];
 
 String frames[21] = {
     "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -62,6 +64,7 @@ void setup()
   strip.setBrightness(50);
 
   Particle.function("addColor", addColor);
+  Particle.variable("colors", colorString);
 }
 void loop()
 {
@@ -75,6 +78,7 @@ void loop()
         int currentColor = atoi((String)currentFrame[index]);
         if(currentColor != 0){
             // Particle.publish("pixel", (String)index);
+            Particle.publish("color", (String)colors[currentColor - 1]);
             strip.setPixelColor(index, colors[currentColor - 1]);
         }
     }
@@ -100,19 +104,45 @@ int addColor(String color)
     green = strtol(newColor, NULL, 16);
     newColor = color.substring(i + 4, i + 6);
     blue = strtol(newColor, NULL, 16);
-    
-    Particle.publish("red", (String)red);
-    Particle.publish("green", (String)green);
-    Particle.publish("blue", (String)blue);
 
-    colors[0] = colors[1];
-    colors[1] = colors[2];
-    colors[2] = colors[3];
-    colors[3] = colors[4];
-    colors[4] = colors[5];
-    colors[5] = colors[6];
-    colors[6] = colors[7];
-    colors[7] = strip.Color(red, green, blue);
+    color1[0] = color2[0];
+    color1[1] = color2[1];
+    color1[2] = color2[2];
+    color2[0] = color3[0];
+    color2[1] = color3[1];
+    color2[2] = color3[2];
+    color2[0] = color3[0];
+    color2[1] = color3[1];
+    color2[2] = color3[2];
+    color3[0] = color4[0];
+    color3[1] = color4[1];
+    color3[2] = color4[2];
+    color4[0] = color5[0];
+    color4[1] = color5[1];
+    color4[2] = color5[2];
+    color5[0] = color6[0];
+    color5[1] = color6[1];
+    color5[2] = color6[2];
+    color6[0] = color7[0];
+    color6[1] = color7[1];
+    color6[2] = color7[2];
+    color7[0] = color8[0];
+    color7[1] = color8[1];
+    color7[2] = color8[2];
+    color8[0] = red;
+    color8[1] = green;
+    color8[2] = blue;
+    
+    colors[0] = strip.Color(color1[0], color1[1], color1[2]);
+    colors[1] = strip.Color(color2[0], color2[1], color2[2]);
+    colors[2] = strip.Color(color3[0], color3[1], color3[2]);
+    colors[3] = strip.Color(color4[0], color4[1], color4[2]);
+    colors[4] = strip.Color(color5[0], color5[1], color5[2]);
+    colors[5] = strip.Color(color6[0], color6[1], color6[2]);
+    colors[6] = strip.Color(color7[0], color7[1], color7[2]);
+    colors[7] = strip.Color(color8[0], color8[1], color8[2]);
+ 
+    colorString = (String)color1[0] + ',' + (String)color1[1] + ',' + (String)color1[2] + '|' + (String)color2[0] + ',' + (String)color2[1] + ',' + (String)color2[2] + '|' + (String)color3[0] + ',' + (String)color3[1] + ',' + (String)color3[2] + '|' + (String)color4[0] + ',' + (String)color4[1] + ',' + (String)color4[2] + '|' + (String)color5[0] + ',' + (String)color5[1] + ',' + (String)color5[2] + '|' + (String)color6[0] + ',' + (String)color6[1] + ',' + (String)color6[2] + '|' + (String)color7[0] + ',' + (String)color7[1] + ',' + (String)color7[2] + '|' + (String)color8[0] + ',' + (String)color8[1] + ',' + (String)color8[2]; 
     
     return 1;  
 }
