@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nodebotanist's ForwardJS Outfit</title>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="alert alert-danger js-socket-error hidden">Hey, something's wrong with the Socket! Try refreshing.</div>
+    <h1>Hi!</h1>
+    <p>Welcome to the landing page for the ForwardJS outfit. Here's the deal:</p>
+    <ol>
+      <li>Enter a CSS-parsable color in the field marked Color. This can include:
+        <ul>
+          <li>Hex Values, e.g. #FFF</li>
+          <li>Color names, e.g. beccapurple</li>
+          <li>rgb/hsl format, e.g. rgb(80, 0, 160)</li>
+        </ul>
+      </li>
+      <li>Use the dropdown to select a part of the outfit</li>
+      <li>Hit Send!</li>
+    </ol>
+    <h2>Let's Get Started!</h2>
+    <form>
+      <div class="alert alert-danger js-no-color hidden">This value didn't parse into a color!</div>
+      <div class="form-group">
+        <label for="color">Color:</label>
+        <input type="text" name="color" />
+      </div>
+      <div class="form-group">
+        <label for="component">Component</label>
+        <select name="component">
+          <option value="belt">Add to Belt Queue</option>
+          <option value="hood">Jacket Hood</option>
+          <option value="left">Jacket Left Sleeve</option>
+          <option value="right">Jacket Right Sleeve</option>
+          <option value="button">Jacket Controller</option>
+        </select>
+      </div>
+      <button class="btn btn-primary js-set-color">Submit</button>
+    </form>
+  </div>
+
+  <script src="javascript/socket.io.js"></script>
+  <script type="text/javascript" src="javascript/jquery.min.js"></script>
+  <script type="text/javascript" src="javascript/colors.js"></script>
+  <script type="text/javascript" src="javascript/main.js"></script>
+</body>
+</html>
