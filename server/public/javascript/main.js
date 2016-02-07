@@ -28,6 +28,15 @@ $(function(){
     for(var i = 0; i < 8; i++){
       $('.js-belt-color' + (i + 1)).css('background-color', 'rgb(' + data.colors[i][0] + ',' + data.colors[i][1] + ',' + data.colors[i][2] + ')');
     }
+  });
+
+  socket.on('belt-offline', function(){
+    console.log('belt is offline');
+  })
+
+
+  socket.on('belt-online', function(){
+    console.log('belt is offline');
   })
 
   var Color = net.brehaut.Color;

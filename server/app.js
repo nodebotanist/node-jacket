@@ -27,7 +27,26 @@ particle.on('login', function(err, body){
         io.emit('refreshBelt', {
           colors: belt.colors
         })
-      })
+      });
+
+      belt.on('offline', function(){
+        console.log('offline server');
+        io.emit('belt-offline');
+      });
+
+      belt.on('online', function(){
+        console.log('online server');
+        io.emit('belt-online');
+      });
+
+      io.on('connection', function (socket) {
+        socket.on('newColor', function (data) {
+          updateColors(data);
+        });
+        socket.emit('refreshBelt', {
+          colors: belt.colors
+        });
+      });
     });
 });
 
@@ -49,14 +68,7 @@ app.use(express.static('public'));
 //   res.send('Hello World!');
 // });
 
-io.on('connection', function (socket) {
-  socket.on('newColor', function (data) {
-    updateColors(data);
-  });
-  socket.emit('refreshBelt', {
-    colors: belt.colors
-  });
-});
+
 
 
 particle.login({
