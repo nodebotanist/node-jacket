@@ -7,11 +7,11 @@ var app = express();
 var server = require("http").Server(app);  
 var io = require("socket.io")(server);
 
+var Belt = require('./lib/belt');
+
 dotenv.load();
 
-var jacketPhoton, beltPhoton;
-
-var beltColors;
+var belt, jacket;
 
 particle.on('login', function(err, body){
     if(err){
@@ -21,14 +21,13 @@ particle.on('login', function(err, body){
     startServer();
 
     particle.listDevices(function(err, devices){
-      jacketPhoton = _.find(devices, {name: 'jacket2'});
-      beltPhoton = _.find(devices, {name: 'belt'});
-
-      setInterval(function(){
-        beltPhoton.getVariable('colors', function(err, data){
-          console.log(data)
+      belt = new Belt(_.find(devices, {name: 'belt'}));
+      
+      belt.on('refreshed', function(){
+        io.emit('refreshBelt', {
+          colors: belt.colors
         })
-      }, 5000)
+      })
     });
 });
 
@@ -53,6 +52,9 @@ app.use(express.static('public'));
 io.on('connection', function (socket) {
   socket.on('newColor', function (data) {
     updateColors(data);
+  });
+  socket.emit('refreshBelt', {
+    colors: belt.colors
   });
 });
 

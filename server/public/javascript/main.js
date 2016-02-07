@@ -18,7 +18,16 @@ $(function(){
   });
 
   socket.on('updateBelt', function(data){
-    console.log(data);
+    for(var i = 1; i < 8; i++){
+      $('.js-belt-color' + i).css('background-color', $('.js-belt-color' + (i + 1)).css('background-color'));
+    }
+    $('.js-belt-color8').css('background-color', data.color);
+  });
+
+  socket.on('refreshBelt', function(data){
+    for(var i = 0; i < 8; i++){
+      $('.js-belt-color' + (i + 1)).css('background-color', 'rgb(' + data.colors[i][0] + ',' + data.colors[i][1] + ',' + data.colors[i][2] + ')');
+    }
   })
 
   var Color = net.brehaut.Color;
