@@ -5,14 +5,13 @@ var util = require('util');
 var statusInterval;
 
 var Belt = function(photon){
-  console.log(photon);
   EventEmitter.call(this);
   this.photon = photon;
   this.colors = [];
-  if(!this.photon.connected){
+  if(!photon.connected){
     this.offline();
   } else {
-    this.refresh();
+    this.online();
   }
 }
 
@@ -26,6 +25,7 @@ Belt.prototype.refresh = function(){
       return;
     }
 
+  this.connected = true;
     this.colors = [];
     var parsedColor;
     colors = data.result.split('|');
@@ -43,12 +43,14 @@ Belt.prototype.offline = function(){
   if(statusInterval){
     clearInterval(statusInterval);
   }
+  this.checkStatus();
   statusInterval = setInterval(this.checkStatus.bind(this), 5000);
 }
 
 Belt.prototype.online = function(){
   this.connected = true;
   this.emit('online');
+  this.refresh();
 
   if(statusInterval){
     clearInterval(statusInterval);
@@ -62,9 +64,17 @@ Belt.prototype.checkStatus = function(){
     if(err){
       return;
     }
-    this.online();
+    if(!this.connected){
+      this.online();
+    }
     this.photon.stopSignal();
   }.bind(this));
+}
+
+Belt.prototype.addColor = function(color, callback){
+  this.photon.callFunction('addColor', color, function(err, data){
+    callback(err);
+  });
 }
 
 module.exports = Belt;

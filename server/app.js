@@ -43,18 +43,29 @@ particle.on('login', function(err, body){
         socket.on('newColor', function (data) {
           updateColors(data);
         });
-        socket.emit('refreshBelt', {
-          colors: belt.colors
-        });
+        console.log(belt);
+        if(belt && belt.connected){
+          socket.emit('refreshBelt', {
+            colors: belt.colors
+          });
+        } else {
+          socket.emit('belt-offline');
+        }
       });
     });
 });
 
 function updateColors(data){
   if(data.component == 'belt'){
-    beltPhoton.callFunction('addColor', data.color.slice(1));
-    io.emit('updateBelt', {
-      color: data.color
+    console.log(belt);
+    belt.addColor(data.color.slice(1), function(err){
+      if(err){
+        io.emit('belt-error', err);
+      } else {
+        io.emit('updateBelt', {
+          color: data.color
+        });
+      }
     });
   } else {
     jacketPhoton.callFunction(setColor, data.component + '|' + data.color.slice(1));

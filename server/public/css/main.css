@@ -6,3 +6,11 @@
   height: 4em;
   outline: 2px solid black;
 }
+
+.jacket-color {
+  font-weight: bolder;
+  -webkit-text-stroke: 1px white;
+  font-size: 2em;
+    height: 4em;
+  outline: 2px solid black;
+}

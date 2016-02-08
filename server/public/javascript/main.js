@@ -32,11 +32,15 @@ $(function(){
 
   socket.on('belt-offline', function(){
     console.log('belt is offline');
+    $('.js-belt-offline').removeClass('hidden');
+    form.find('option[value=belt]').attr('disabled', true);
   })
 
 
   socket.on('belt-online', function(){
-    console.log('belt is offline');
+    console.log('belt is online');
+    $('.js-belt-offline').addClass('hidden');
+    form.find('option[value=belt]').attr('disabled', false);
   })
 
   var Color = net.brehaut.Color;
@@ -45,11 +49,21 @@ $(function(){
   form.find('.js-set-color').on('click', function(event){
     event.preventDefault();
     var inputColor = Color(form.find('[name=color]').val());
+    var component = form.find('[name=component]').val();
+    ready = true;
 
+    if(!component){
+      $('.js-no-component').removeClass('hidden');
+      ready = false;
+    }
     if(!inputColor.red){
       $('.js-no-color').removeClass('hidden');
-    } else {
-      console.log(inputColor.toCSS(), form.find('[name=component]').val());
+      ready = false;
+    }
+    if(ready){
+      $('.js-no-color').addClass('hidden');
+      $('.js-no-component').addClass('hidden');
+      console.log(inputColor.toCSS(), component);
       socket.emit('newColor', {
         color: inputColor.toCSS(),
         component: form.find('[name=component]').val()
