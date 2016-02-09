@@ -4,7 +4,7 @@
 
 
 // This #include statement was automatically added by the Particle IDE.
-#include "InternetButton.h"
+#include "Nodebotanist_InternetButton.h"
 
 
 // This #include statement was automatically added by the Particle IDE.
@@ -33,8 +33,8 @@ int greenValue = 0;
 boolean eventDelay = true;
 int eventTimer = 0;
     
-Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(36, A0, WS2812); // right sleeve
-Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(36, A1, WS2812); // left sleeve
+Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(36, A1, WS2812); // right sleeve
+Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(36, A0, WS2812); // left sleeve
 Adafruit_NeoPixel strip4 = Adafruit_NeoPixel(43, D2, WS2812); // hood
 
 int userHoodColor[3] = {50, 50, 50};
@@ -49,6 +49,10 @@ boolean rerender = true;
 
 byte gammatable[256];
 
+String colorString;
+
+int rainbowIndex = 0;
+
 void setup() {
     // Tell b to get everything ready to go
     // Use b.begin(1); if you have the original SparkButton, which does not have a buzzer or a plastic enclosure
@@ -56,12 +60,13 @@ void setup() {
     Particle.variable("accelX", xValue);
     Particle.variable("accelY", yValue);
     Particle.variable("accelZ", zValue);
+    Particle.variable("colors", colorString);
     Particle.function("setColor", set_color);
         
     b.begin();
-    strip2.setBrightness(70);
-    strip3.setBrightness(70);
-    strip4.setBrightness(70);
+    strip2.setBrightness(150);
+    strip3.setBrightness(150);
+    strip4.setBrightness(150);
     
     strip2.begin();
     strip3.begin();
@@ -85,75 +90,28 @@ void setup() {
 }
 
 int modeLight = 0;
+String mode = "default";
 
 void loop(){
 
     
     roll  = ((((atan2(-yValue, zValue)*180.0)/M_PI) + 180) / 360) * 256;
     pitch = ((((atan2(xValue, sqrt(yValue*yValue + zValue*zValue))*180.0)/M_PI) + 180) / 360) * 256;
-    
 
     if(b.buttonOn(1)){
-        if(eventDelay){
-            Particle.publish("buttonpressup");
-            eventDelay = false;
-            eventTimer = 0;
-        }
-        
-        //userColorCycle, userColorIndex
-        if(modeLight == 0){
-            if(userColorIndex == 0){
-                userColorCycle[0] = userButtonColor[0];
-                userColorCycle[1] = userButtonColor[1];
-                userColorCycle[2] = userButtonColor[2];
-                userColorIndex++;
-            } else if(userColorIndex == 1){
-                userColorCycle[0] = userLeftColor[0];
-                userColorCycle[1] = userLeftColor[1];
-                userColorCycle[2] = userLeftColor[2];
-                userColorIndex++;
-            } else if(userColorIndex == 2){
-                userColorCycle[0] = userHoodColor[0];
-                userColorCycle[1] = userHoodColor[1];
-                userColorCycle[2] = userHoodColor[2];
-                userColorIndex++;
-            }  else if(userColorIndex == 3){
-                userColorCycle[0] = userRightColor[0];
-                userColorCycle[1] = userRightColor[1];
-                userColorCycle[2] = userRightColor[2];
-                userColorIndex = 0;
-            }
-        }
-        
-        if( modeLight <= 35 ){
-            // 2 4 3 button
-            strip2.setPixelColor(modeLight, strip2.Color(userColorCycle[0], userColorCycle[1], userColorCycle[2]));
-            modeLight++;
-        } else if ( modeLight <= 79 ){
-            strip4.setPixelColor(modeLight - 36, strip2.Color(userColorCycle[0], userColorCycle[1], userColorCycle[2]));
-            modeLight++;
-        } else if ( modeLight <= 115 ){
-            strip3.setPixelColor(modeLight - 80, strip2.Color(userColorCycle[0], userColorCycle[1], userColorCycle[2]));
-            modeLight++;
-        } else if ( modeLight <= 126 ){
-            b.ledOn(modeLight - 116, userColorCycle[0], userColorCycle[1], userColorCycle[2]);
-            modeLight++;
-        } else {
-            modeLight = 0;
-        }
-        
-        
-        strip2.show();
-        strip3.show();
-        strip4.show();
-        delay(2);
-        rerender = true;
-    } else {
-        modeLight = 0;
-        userColorIndex = 0;
-    }
-    
+        mode = "default";
+    }    
     if(b.buttonOn(2)){
+        mode = "accel";
+    } 
+    if (b.buttonOn(3)) {
+        mode = "rgb";
+    }
+    if(b.buttonOn(4)){ 
+        mode = "rainbow";
+    }
+
+    if(mode == "accel"){
         if(eventDelay){
             Particle.publish("buttonpressright");
             eventDelay = false;
@@ -192,10 +150,10 @@ void loop(){
         
         rerender = true;
         
-        delay(50);
+        delay(100);
     }
     
-    if(b.buttonOn(3)){
+    if(mode == "rgb"){
         if(eventDelay){
             Particle.publish("buttonpressdown");
             eventDelay = false;
@@ -224,33 +182,36 @@ void loop(){
         
         b.allLedsOn(gammatable[(int)redValue], gammatable[(int)greenValue], gammatable[(int)blueValue]);
         int i = 0;
-        byte color = strip3.Color(gammatable[(int)redValue], gammatable[(int)greenValue], gammatable[(int)blueValue]);
         for(i = 0; i < strip3.numPixels(); i++){
-            strip2.setPixelColor(i, color);
-            strip3.setPixelColor(i, color);
+            strip2.setPixelColor(i, gammatable[(int)redValue], gammatable[(int)greenValue], gammatable[(int)blueValue]);
+            strip3.setPixelColor(i, gammatable[(int)redValue], gammatable[(int)greenValue], gammatable[(int)blueValue]);
         }
         for(i = 0; i < strip4.numPixels(); i++){
-            strip4.setPixelColor(i, color);
+            strip4.setPixelColor(i, gammatable[(int)redValue], gammatable[(int)greenValue], gammatable[(int)blueValue]);
         }
         rerender = true;
         
         strip2.show();
         strip3.show();
         strip4.show();
+        delay(200);
     }
     
-    if(b.buttonOn(4)){
+    if(mode == "rainbow"){
         if(eventDelay){
             Particle.publish("buttonpressleft");
             eventDelay = false;
             eventTimer = 0;
         }
 
-        rainbow(0);
-        
+        rainbow(rainbowIndex);
+        rainbowIndex++;
+        if(rainbowIndex > 256){
+            rainbowIndex = 0;
+        }
         rerender = true;
         
-        // delay(10);
+        delay(50);
     }
 
     if(!eventDelay){
@@ -262,31 +223,44 @@ void loop(){
         }
     }
     
-    if(b.allButtonsOff() && rerender){
+    if(mode == "default"){
         // right left hood
-        int i = 0;
-        for(i = 0; i < strip3.numPixels(); i++){
-            strip2.setPixelColor(i, strip3.Color(userRightColor[0], userRightColor[1], userRightColor[2]));
-            strip3.setPixelColor(i, strip3.Color(userLeftColor[0], userLeftColor[1], userLeftColor[2]));
+        if(modeLight < 36){
+            strip2.setPixelColor(modeLight, strip3.Color(userRightColor[0], userRightColor[1], userRightColor[2]));
+        } else if(modeLight < 78) {
+            strip4.setPixelColor(modeLight - 36, strip3.Color(userHoodColor[0], userHoodColor[1], userHoodColor[2]));
+        } else if(modeLight < 114) {
+            strip3.setPixelColor(modeLight - 78, strip3.Color(userLeftColor[0], userLeftColor[1], userLeftColor[2]));
+        } else if(modeLight < 125) {
+            b.ledOn(modeLight - 114, userButtonColor[0], userButtonColor[1], userButtonColor[2]);
+        } else {
+            int i;
+            for(i = 0; i < strip3.numPixels(); i++){
+                strip2.setPixelColor(i, 0, 0, 0);
+                strip3.setPixelColor(i, 0, 0, 0);
+            }
+            for(i = 0; i < strip4.numPixels(); i++){
+                strip4.setPixelColor(i, 0, 0, 0);
+            }            
+            b.allLedsOff();
+            modeLight = 0;
         }
-        for(i = 0; i < strip4.numPixels(); i++){
-            strip4.setPixelColor(i, strip3.Color(userHoodColor[0], userHoodColor[1], userHoodColor[2]));
-        }
-        b.allLedsOn(userButtonColor[0], userButtonColor[1], userButtonColor[2]);
+        modeLight++;
         strip2.show();
         strip3.show();
         strip4.show();
-        rerender = false;
+        colorString = (String)userHoodColor[0] + ',' + (String)userHoodColor[1] + ',' + (String)userHoodColor[2] + '|' + (String)userLeftColor[0] + ',' + (String)userLeftColor[1] + ',' + (String)userLeftColor[2] + '|' + (String)userRightColor[0] + ',' + (String)userRightColor[1] + ',' + (String)userRightColor[2] + '|' + (String)userButtonColor[0] + ',' + (String)userButtonColor[1] + ',' + (String)userButtonColor[2]; 
+        delay(100);
     }
 }
 
 int rgb_values[3] = {0, 0, 0};
 
-void rainbow(int wait){
+void rainbow(int j){
 
-  uint16_t i, j, k, m;
+  uint16_t i, k, m;
 
-  for(j=0; j<256; j++) {
+//   for(j=0; j<256; j++) {
     for(m=0; m<=11; m++) {
       WheelRGB(m+j, rgb_values);
       b.ledOn(m, rgb_values[0], rgb_values[1], rgb_values[2]);
@@ -298,14 +272,10 @@ void rainbow(int wait){
     for(k=0; k<=strip4.numPixels(); k++) {
       strip4.setPixelColor(k, Wheel((k+j) & 255));
     }
-    if(!b.buttonOn(4)){
-        break;
-    }
     strip2.show();
     strip3.show();
     strip4.show();
-    delay(wait);
-  }
+//   }
 }
 
 
@@ -374,6 +344,8 @@ int set_color(String color){
         userButtonColor[1] = green;
         userButtonColor[2] = blue;
     }
+    
+    rerender = true;
     
     return 1;
 }

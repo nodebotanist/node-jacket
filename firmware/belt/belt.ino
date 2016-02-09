@@ -27,7 +27,7 @@ int color4[3] = {0, 255, 0};
 int color5[3] = {0, 0, 255};
 int color6[3] = {75, 0, 130};
 int color7[3] = {143, 0, 255};
-int color8[3] = {50, 50, 5};
+int color8[3] = {50, 50, 50};
 
 int colors[8] = { strip.Color(color1[0], color1[1], color1[2]), strip.Color(color2[0], color2[1], color2[2]), strip.Color(color3[0], color3[1], color3[2]), strip.Color(color4[0], color4[1], color4[2]), strip.Color(color5[0], color5[1], color5[2]), strip.Color(color6[0], color6[1], color6[2]), strip.Color(color7[0], color7[1], color7[2]), strip.Color(color8[0], color8[1], color8[2]) };
 
@@ -61,7 +61,7 @@ void setup()
 {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  strip.setBrightness(50);
+  strip.setBrightness(30);
 
   Particle.function("addColor", addColor);
   Particle.variable("colors", colorString);
