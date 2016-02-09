@@ -17,10 +17,8 @@ var Belt = function(photon){
 util.inherits(Belt, EventEmitter);
 
 Belt.prototype.refresh = function(){
-  console.log('Belt refreshing');
   this.photon.getVariable('colors', function(err, data){
     if(err){
-      console.log('Belt not responding', err);
       this.offline();
       return;
     } else if(!this.connected){
@@ -42,17 +40,14 @@ Belt.prototype.refresh = function(){
 Belt.prototype.offline = function(){
   this.connected = false;
   this.emit('offline');
-  console.log('Belt offline');
 }
 
 Belt.prototype.online = function(){
   this.connected = true;
   this.emit('online');
-  console.log('Belt online');
 }
 
 Belt.prototype.checkStatus = function(){
-  console.log('checking status');
   this.photon.signal(function(err, data){
     if(err){
       return;
