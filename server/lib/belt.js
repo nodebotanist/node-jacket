@@ -2,8 +2,6 @@ var Particle = require('spark');
 var EventEmitter = require('events');
 var util = require('util');
 
-var statusInterval;
-
 var Belt = function(photon){
   EventEmitter.call(this);
   this.photon = photon;
@@ -13,19 +11,23 @@ var Belt = function(photon){
   } else {
     this.online();
   }
+  this.statusInterval = setInterval(this.refresh.bind(this), 5000);
 }
 
 util.inherits(Belt, EventEmitter);
 
 Belt.prototype.refresh = function(){
-  console.log('refreshing');
+  console.log('Belt refreshing');
   this.photon.getVariable('colors', function(err, data){
     if(err){
+      console.log('Belt not responding', err);
       this.offline();
       return;
+    } else if(!this.connected){
+      this.online();
     }
 
-  this.connected = true;
+    this.connected = true;
     this.colors = [];
     var parsedColor;
     colors = data.result.split('|');
@@ -40,22 +42,13 @@ Belt.prototype.refresh = function(){
 Belt.prototype.offline = function(){
   this.connected = false;
   this.emit('offline');
-  if(statusInterval){
-    clearInterval(statusInterval);
-  }
-  this.checkStatus();
-  statusInterval = setInterval(this.checkStatus.bind(this), 5000);
+  console.log('Belt offline');
 }
 
 Belt.prototype.online = function(){
   this.connected = true;
   this.emit('online');
-  this.refresh();
-
-  if(statusInterval){
-    clearInterval(statusInterval);
-    statusInterval = setInterval(this.refresh.bind(this), 5000);
-  }
+  console.log('Belt online');
 }
 
 Belt.prototype.checkStatus = function(){
